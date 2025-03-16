@@ -12,7 +12,7 @@ import {
 import { plaidClient } from "../plaid";
 import { parseStringify } from "../utils";
 
-// import { getTransactionsByBankId } from "./transaction.actions";
+import { getTransactionsByBankId } from "./transaction.action";
 import { getBanks, getBank } from "./user.action";
 
 // Get multiple bank accounts
@@ -76,53 +76,53 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
     const accountData = accountsResponse.data.accounts[0];
 
     // get transfer transactions from appwrite
-    // const transferTransactionsData = await getTransactionsByBankId({
-    //   bankId: bank.$id,
-    // });
+    const transferTransactionsData = await getTransactionsByBankId({
+      bankId: bank.$id,
+    });
 
-    // const transferTransactions = transferTransactionsData.documents.map(
-    //   (transferData: Transaction) => ({
-    //     id: transferData.$id,
-    //     name: transferData.name!,
-    //     amount: transferData.amount!,
-    //     date: transferData.$createdAt,
-    //     paymentChannel: transferData.channel,
-    //     category: transferData.category,
-    //     type: transferData.senderBankId === bank.$id ? "debit" : "credit",
-    //   })
-    // );
+    const transferTransactions = transferTransactionsData.documents.map(
+      (transferData: Transaction) => ({
+        id: transferData.$id,
+        name: transferData.name!,
+        amount: transferData.amount!,
+        date: transferData.$createdAt,
+        paymentChannel: transferData.channel,
+        category: transferData.category,
+        type: transferData.senderBankId === bank.$id ? "debit" : "credit",
+      })
+    );
 
-    // // get institution info from plaid
-    // const institution = await getInstitution({
-    //   institutionId: accountsResponse.data.item.institution_id!,
-    // });
+    // get institution info from plaid
+    const institution = await getInstitution({
+      institutionId: accountsResponse.data.item.institution_id!,
+    });
 
-    // const transactions = await getTransactions({
-    //   accessToken: bank?.accessToken,
-    // });
+    const transactions = await getTransactions({
+      accessToken: bank?.accessToken,
+    });
 
-    // const account = {
-    //   id: accountData.account_id,
-    //   availableBalance: accountData.balances.available!,
-    //   currentBalance: accountData.balances.current!,
-    //   institutionId: institution.institution_id,
-    //   name: accountData.name,
-    //   officialName: accountData.official_name,
-    //   mask: accountData.mask!,
-    //   type: accountData.type as string,
-    //   subtype: accountData.subtype! as string,
-    //   appwriteItemId: bank.$id,
-    // };
+    const account = {
+      id: accountData.account_id,
+      availableBalance: accountData.balances.available!,
+      currentBalance: accountData.balances.current!,
+      institutionId: institution.institution_id,
+      name: accountData.name,
+      officialName: accountData.official_name,
+      mask: accountData.mask!,
+      type: accountData.type as string,
+      subtype: accountData.subtype! as string,
+      appwriteItemId: bank.$id,
+    };
 
-    // // sort transactions by date such that the most recent transaction is first
-    //   const allTransactions = [...transactions, ...transferTransactions].sort(
-    //   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    // );
+    // sort transactions by date such that the most recent transaction is first
+      const allTransactions = [...transactions].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
 
-    // return parseStringify({
-    //   data: account,
-    //   transactions: allTransactions,
-    // });
+    return parseStringify({
+      data: account,
+      transactions: allTransactions,
+    });
   } catch (error) {
     console.error("An error occurred while getting the account:", error);
   }
